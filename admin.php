@@ -1,5 +1,20 @@
 <?php
-    session_start();
+session_start([
+    'cookie_lifetime' => 300,
+]);
+
+include_once 'inc/functions.php';
+
+$_user_id = $_SESSION['id'] ?? 0;
+
+//setting cookie
+setcookie('userIdCookie', $_user_id, time() + 300);
+
+$_user_name = $_SESSION['name'] ?? '';
+if (!$_user_id) {
+    header("Location: index.php");
+    die();
+}
 ?>
 
 <!DOCTYPE html>
@@ -19,12 +34,14 @@
 <div class="sidebar">
     <h4>Menu</h4>
     <ul class="menu">
-        <li><a href="#" class="menu-item">Profile <?php echo "(".$_SESSION['login'].")"; ?></a></li><br>
-        <li><a href="admin.php" class="menu-item">All Products</a></li>
+        <li><a href="#" class="menu-item">Profile <?php echo "(" . $_user_name . ")"; ?></a></li>
+        <br>
+        <li><a href="admin.php" class="menu-item" data-target="words">All Products</a></li>
         <li><a href="add_product.php" class="menu-item">Add New Products</a></li>
-        <li><a href="admin_user.php" class="menu-item">All Users</a></li>
-        <li><a href="#" class="menu-item">Order List</a></li><br>
-        <li><a href="index.php">Logout</a></li>
+        <li><a href="admin_user.php" class="menu-item" data-target="users">All Users</a></li>
+        <li><a href="#" class="menu-item">Order List</a></li>
+        <br>
+        <li><a href="logout.php">Logout</a></li>
     </ul>
 </div>
 
@@ -32,68 +49,74 @@
     <h1 class="maintitle">
         <i class="fas fa-store"></i> <br> Admin Dashboard
     </h1>
+
     <div class="wordsc helement" id="words">
         <div class="row">
             <div class="column column-50">
                 <div class="alpha">
                     <select id="alpha">
                         <option value="all">All Catagory</option>
-                        <option value="A">Electronics</option>
-                        <option value="B">Groceries</option>
-                        <option value="C">Health & Beauty</option>
+                        <option value="e">Electronics</option>
+                        <option value="g">Groceries</option>
+                        <option value="h">Health & Beauty</option>
                     </select>
 
                 </div>
             </div>
-            
+
             <div class="column column-50">
                 <form action="" method="POST">
-                    <button class="float-right" name="submit" value="submit">Search</button>
-                    <input type="text" name="search" class="float-right" style="width: 50%; margin-right:20px;" placeholder="Search">
+                    <!--                    <button class="float-right" name="submit" value="submit">Search</button>-->
+                    <input type="text" name="search" id="myInput" onkeyup="productSearch()" class="float-right"
+                           style="width: 50%; margin-right:20px;"
+                           placeholder="Search">
                 </form>
             </div>
-            </div>
         </div>
-        <hr>
+    </div>
+    <hr>
 
-        <table class="words" >
-            <thead>
+    <table class="words" id="myTable">
+        <thead>
+        <tr>
+            <th>#Id</th>
+            <th width="20%">Name</th>
+            <th>Definition</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php
+
+        $words = getProducts();
+
+
+        if (count($words) > 0) {
+            $length = count($words);
+            for ($i = 0; $i < $length; $i++) {
+                ?>
                 <tr>
-                    <th>#Id</th>
-                    <th width="20%">Name</th>
-                    <th>Definition</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Status</th>
+                    <td><?php echo $words[$i]['id']; ?></td>
+                    <td><?php echo $words[$i]['product_name']; ?></td>
+                    <td><?php echo $words[$i]['product_brand']; ?></td>
+                    <td><?php echo $words[$i]['product_price']; ?></td>
+                    <td><?php echo $words[$i]['product_quantity']; ?></td>
+                    <td><img src="assets/images/<?php echo $words[$i]['product_image']; ?>" height="200" width="200"></td>
+                    <td class="status"><?php echo $words[$i]['product_status']; ?></td>
+                    <td><a class="button button-outline" href="">view</a></td>
                 </tr>
-            </thead>
-            <tbody>
-                <td>1</td>
-                <td>Chocolate</td>
-                <td>20mg dark - Valrhona</td>
-                <td>200</td>
-                <td>10</td>
-                <td>available</td>
-                <td><a class="button button-outline" href="#">view</a></td>
-            </tbody>
-        </table>
+                <?php
+            }
+        }
+        ?>
+        </tbody>
+    </table>
 
-    </div>
-
-    <div class="formc helement" id="wordform" style="display: none;">
-        <form method="post">
-            <h4>Add New Word</h4>
-            <fieldset>
-                <label for="word">Word</label>
-                <input type="text" name="word" placeholder="Word" id="word">
-                <label for="Meaning">Meaning</label>
-                <textarea name="meaning" placeholder="Meaning" id="Meaning" style="height:100px" rows="10"></textarea>
-                <input type="hidden" name="action" value="addword">
-                <input class="button-primary" type="submit" value="Add Word">
-            </fieldset>
-        </form>
-    </div>
 
 </div>
+<script src="//code.jquery.com/jquery-3.4.1.slim.min.js"></script>
+<script src="assets/js/script.js?1"></script>
 </body>
 </html>

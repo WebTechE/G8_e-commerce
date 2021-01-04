@@ -1,5 +1,7 @@
 <?php
     include_once 'inc/validation.php';
+    include_once 'inc/functions.php';
+
 
 ?>
 
@@ -31,7 +33,7 @@
                 <a href="index.php" id="login">Login</a> | <a href="registration.php" id="register">Register Account</a>
             </div>
             <div class="formc">
-                <form id="form01" method="post">
+                <form id="form01" method="post" action="tasks.php">
                     <h3>Registration</h3>
                     <fieldset>
                         <label for="name">Name <span style="color:red;">* <?php echo $nameErr; ?></span></label>
@@ -44,8 +46,18 @@
                         <input type="text" placeholder="address" id="address" name="address" value="<?php echo $address; ?>">
                         <label for="phone">Phone <span style="color:red;">* <?php echo $phoneErr; ?></span></label>
                         <input type="text" placeholder="phone" id="phone" name="phone" value="<?php echo $phone; ?>">
+
+                        <p>
+                            <?php
+                            $status = $_GET['status'] ?? 0;
+                            if ($status) {
+                                echo "<span style=\"color:red;\">".getStatusMessage($status)."</spna>";
+                            }
+                            ?>
+                        </p>
+
                         <input class="button-primary" type="submit" value="Submit">
-                        <input type="hidden" name="action" id="action" value="login">
+                        <input type="hidden" name="action" id="action" value="register">
                     </fieldset>
                 </form>
             </div>

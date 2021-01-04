@@ -1,23 +1,17 @@
 <?php
-session_start();
+session_start([
+    'cookie_lifetime' => 300,
+]);
+
+$_user_id = $_SESSION['id']??0;
+if($_user_id){
+    header("Location: admin.php");
+    die();
+}
 
 include_once 'inc/validation.php';
+include_once 'inc/functions.php';
 
-// Login Validation Checking
-$invalid = "";
-if (isset($_POST["submit"])) {
-    if(!empty($_POST['email'])&& !empty($_POST['password'])){
-        $email = $_POST['email'];
-        $password = $_POST['password'];
-        if ($email == "admin@mail.com" && $password == "password") {
-            $_SESSION['login'] = $email;
-
-            header("Location: admin.php");
-        } else {
-            $invalid = "Invalid username or password!";
-        }
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -49,16 +43,26 @@ if (isset($_POST["submit"])) {
                 <a href="index.php" id="login">Login</a> | <a href="registration.php" id="register">Register Account</a>
             </div>
             <div class="formc">
-                <form action="" id="form01" method="post">
+                <form action="tasks.php" id="form01" method="post">
                     <h3>Login</h3>
                     <fieldset>
-                        <p style="color: red;"><?php echo $invalid; ?></p>
+<!--                        <p style="color: red;">--><?php //echo $invalid; ?><!--</p>-->
                         <label for="email">Email</label>
-                        <input type="email" placeholder="Email Address" id="email" name="email" value="<?php echo $email; ?>">
+                        <input type="email" placeholder="Email Address" id="email" name="email"
+                               value="<?php echo $email; ?>">
                         <span style="color: red;"><?php echo $emailErr; ?></span>
                         <label for="password">Password</label>
                         <input type="password" placeholder="Password" id="password" name="password">
                         <span style="color: red;"><?php echo $passwordErr; ?></span> <br>
+
+                        <p>
+                            <?php
+                            $status = $_GET['status'] ?? 0;
+                            if ($status) {
+                                echo "<span style=\"color:red;\">".getStatusMessage($status)."</span>";
+                            }
+                            ?>
+                        </p>
                         <input class="button-primary" type="submit" name="submit" value="Submit">
                         <input type="hidden" name="action" id="action" value="login">
                     </fieldset>

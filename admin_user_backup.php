@@ -11,11 +11,6 @@ if (!$_user_id) {
     header("Location: index.php");
     die();
 }
-
-$connect = mysqli_connect("localhost", "root", "", "e-commerce");
-$query = "SELECT * FROM users ORDER BY name ASC";
-$result = mysqli_query($connect, $query);
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -29,9 +24,6 @@ $result = mysqli_query($connect, $query);
           integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
 
     <link rel="stylesheet" href="assets/css/style.css">
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-
 </head>
 <body class="panel">
 <div class="sidebar">
@@ -56,21 +48,22 @@ $result = mysqli_query($connect, $query);
         <div class="row">
             <div class="column column-50">
                 <div class="alpha">
-                    <select name="users_list" id="users_list">
-                        <option value="">Select User</option>
-                        <?php
-                        while ($row = mysqli_fetch_array($result)) {
-                            echo '<option value="' . $row["id"] . '">' . $row["name"] . '</option>';
-                        }
-                        ?>
+                    <select id="alpha">
+                        <option value="all">All User</option>
+                        <option value="Admin">Admin</option>
+                        <option value="Employee">Employees</option>
+                        <option value="Customer">Customers</option>
                     </select>
 
                 </div>
             </div>
 
-            <div class="column column-30">
-                <button class="float-right" name="search" id="search" value="search">Search</button>
-
+            <div class="column column-50">
+                <form action="" method="POST">
+                    <button class="float-right" name="submit" value="submit">Search</button>
+                    <input type="text" name="search" id="numb"  class="float-right" style="width: 50%; margin-right:20px;"
+                           placeholder="Search">
+                </form>
 
             </div>
 
@@ -79,57 +72,44 @@ $result = mysqli_query($connect, $query);
 
     <hr>
 
-    <table class="words" id="users_details" style="display:none">
+    <table class="words" id="myTable">
         <thead>
         <tr>
+            <th>#Id</th>
             <th width="20%">Name</th>
             <th>Email</th>
             <th>Phone</th>
             <th>Address</th>
         </tr>
         </thead>
-
         <tbody>
+        <?php
+        if(isset($_POST['submit'])){
+            $serachedText = $_POST['search'];
+            $users = getUsers($serachedText);
+        }else {
+            $users = getUsers();
+        }
 
-        <tr>
-            <td><span id="users_name"></span></td>
-            <td><span id="users_email"></span></td>
-            <td><span id="users_phone"></span></td>
-            <td><span id="users_address"></span></td>
-            <td><a class="button button-outline" href="#">view</a></td>
-        </tr>
-
+        if (count($users) > 0) {
+            $length = count($users);
+            for ($i = 0; $i < $length; $i++) {
+                ?>
+                <tr>
+                    <td><?php echo $users[$i]['id']; ?></td>
+                    <td><?php echo $users[$i]['name']; ?></td>
+                    <td><?php echo $users[$i]['email']; ?></td>
+                    <td><?php echo $users[$i]['phone']; ?></td>
+                    <td><?php echo $users[$i]['address']; ?></td>
+                    <td><a class="button button-outline" href="#">view</a></td>
+                </tr>
+                <?php
+            }
+        }
+        ?>
         </tbody>
     </table>
 </div>
 
-
-<script>
-    $(document).ready(function () {
-        $('#search').click(function () {
-            var id = $('#users_list').val();
-
-
-            if (id != '') {
-                $.ajax({
-                    url: "controller/data.php",
-                    method: "POST",
-                    data: {id: id},
-                    dataType: "JSON",
-                    success: function (data) {
-                        $('#users_details').css("display", "block");
-                        $('#users_name').text(data.name);
-                        $('#users_address').text(data.address);
-                        $('#users_phone  ').text(data.phone);
-                        $('#users_email').text(data.email);
-                    }
-                })
-            } else {
-                alert("Please Select Users");
-                $('#users_details').css("display", "none");
-            }
-        });
-    });
-</script>
 </body>
 </html>
